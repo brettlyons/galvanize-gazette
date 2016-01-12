@@ -1,0 +1,2 @@
+DROP TABLE stories CASCADE;
+DROP TABLE opinions CASCADE;
