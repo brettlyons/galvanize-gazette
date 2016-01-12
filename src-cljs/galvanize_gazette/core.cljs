@@ -13,17 +13,17 @@
     [:div.row
      [:div.col-md-12 {:style {:background-image "url(img/devils-tower.jpg)"
                               :background-size "100%"
-                              :height "300px"
+                              :height "200px"
                               :width "100%"}}
       [:p]
-      [:div.row
-       [:div.col-md-offset-1
+      [:div.container
+       [:div.row
         [:a {:href "/" :style {:color "black"}}
-         [:div.col-md-5 {:style {:margin-top "40px" :opacity "0.7" :border-style "solid" :border-color "black" :border-width "2px" :background-color "white"}}
+         [:div.col-md-5 {:style {:margin "25px 0 25px 0" :opacity "0.7" :border-style "solid" :border-color "black" :border-width "2px" :background-color "white"}}
           [:div.row.h1
            [:div.col-md-12 "Galvanize Gazette"]]
           [:div.row.h3
-           [:div.col-md-12"All The News Thats Fit To Link"]]]]]]]]))
+           [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]]))
 
 
 
@@ -47,12 +47,12 @@
     (fn [] 
       [:div.container
        [:div.row
-        [:div.col-md-12
+        [:a.pull-right {:on-click #(swap! hide-form not)} (str (if @hide-form "Show" "Hide"))]
+        [:div.col-md-12 {:hidden @hide-form}
          [:div.h1 "Add A Story"]
-         [:a.pull-right {:on-click #(swap! hide-form not)} (str (if @hide-form "Show" "Hide"))]
          [:br]
          [:br]
-         [:form.form-horizontal {:hidden @hide-form}
+         [:form.form-horizontal 
           [add-story-form "Title:"]
           [add-story-form "Link:" "url"]
           [add-story-form "Image URL:" "url"]
@@ -64,6 +64,10 @@
           [:div.col-md-offset-2
            [:button.btn.btn-lg.btn-primary "Link it up!"]]
           ]]]
+       [:div.row
+        [:div.col-md-12.h1 "Today's News"]]
+       [:div.row
+        [:div.col-md-4]]
        ])))
 
 (def pages
