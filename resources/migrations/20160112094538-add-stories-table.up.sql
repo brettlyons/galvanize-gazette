@@ -25,10 +25,10 @@ INSERT INTO stories
     now()
 );
 
-INSERT INTO opinions
-  (id, story, content)
-    VALUES (
-      DEFAULT,
-      (SELECT id FROM STORIES LIMIT 1),
-      "This is some kind of opinion"
-);
+-- INSERT INTO opinions
+--   (id, story, content)
+--     VALUES (
+--       DEFAULT,
+--       (SELECT id FROM STORIES LIMIT 1),
+--       "This is some kind of opinion"
+-- );
