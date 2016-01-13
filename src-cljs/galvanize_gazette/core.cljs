@@ -8,6 +8,8 @@
             [ajax.core :refer [GET POST]])
   (:import goog.History))
 
+(def AJAX-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
+
 (defn navbar []
   (fn []
     [:div.row
@@ -34,7 +36,7 @@
 (def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy" "I suppose it is little comfort that I picked a sort of *hard mode*, at least it's not far from completion"]}))
 
 (defn post-story []
-  (POST "http://localhost:3000/api/story" :params {:title (get-in @app-db [:add-story (str "Title")]) 
+  (POST AJAX-ADDRESS :params {:title (get-in @app-db [:add-story (str "Title")]) 
                           :link (get-in @app-db [:add-story "Link"])
                           :imageurl (get-in @app-db [:add-story "Image URL"])
                           :summary (get-in @app-db [:add-story "summary"])}
@@ -42,7 +44,7 @@
         :error-handler #(println "POST (un?)SUCCESFUL!::: " %)))
 
 (defn get-stories []
-  (GET "http://localhost:3000/api/story"
+  (GET AJAX-ADDRESS
        {:headers {"Accept" "application/transit+json"}
         :error-handler (fn [err] (println "GET ERROR" err))
         :handler (fn [e] 
