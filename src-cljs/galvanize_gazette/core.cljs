@@ -25,26 +25,48 @@
           [:div.row.h3
            [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]]))
 
-
-
 (defn about-page []
   [:div.container
    [:div.row
     [:div.col-md-12
      "this is the story of galvanize-gazette... work in progress"]]])
 
+(def app-db (r/atom {}))
+
+(defn post-story []
+  (POST "http://localhost:3000/api/story" :params {:title (get-in @app-db [:add-story (str "Title")]) 
+                          :link (get-in @app-db [:add-story "Link"])
+                          :imageurl (get-in @app-db [:add-story "Image URL"])
+                          :summary (get-in @app-db [:add-story "summary"])}
+        :handler #(println "POST SUCCESFUL!::: " % @app-db)
+        :error-handler #(println "POST (un?)SUCCESFUL!::: " %)))
+
+(defn get-stories []
+  (GET "http://localhost:3000/api/story"
+       {:headers {"Accept" "application/transit+json"}
+        :handler #(swap! app-db assoc-in [:stories] %)}))
+
 (defn add-story-form  [label type]
-  (let [id (str "add-story-" label) type (or type "text")]
+  (let [id (str "add-story-" label) type (or type "text") input-info (r/atom "")]
     (fn []
+      ;; (println app-db)
+      ;; (println (get-in @app-db [:add-story "Image URL"]))
       [:div.form-group.form-group-md
        [:div.col-md-2
-        [:label {:for id :style {:font-size "18px"}} (str label " ")]]
+        [:label {:for id :style {:font-size "18px"}} (str label ": ")]]
        [:div.col-md-4
-        [:input.form-control {:type type :id id}]]])))
+        [:input.form-control {:type type
+                              :id id
+                              :value @input-info
+                              :on-change (fn [e] (reset! input-info (.-target.value e))
+                                           (swap! app-db assoc-in [:add-story label] @input-info))}]]])))
+
 
 (defn home-page []
-  (let [hide-form (r/atom false)]
-    (fn [] 
+  (let [hide-form (r/atom false) input-info (r/atom "") todays-stories (doall (get-stories)
+                                                                              (get-in app-db [:stories]))]
+    (fn []
+      (println (str todays-stories))
       [:div.container
        [:div.row
         [:a.pull-right {:on-click #(swap! hide-form not)} (str (if @hide-form "Show" "Hide"))]
@@ -53,16 +75,20 @@
          [:br]
          [:br]
          [:form.form-horizontal 
-          [add-story-form "Title:"]
-          [add-story-form "Link:" "url"]
-          [add-story-form "Image URL:" "url"]
+          [add-story-form "Title" "text"]
+          [add-story-form "Link" "url"]
+          [add-story-form "Image URL" "url"]
           [:div.form-group.form-group-md
            [:div.col-md-2
             [:label {:for "add-story-summary" :style {:font-size "18px"}} (str "Summary:" " ")]]
            [:div.col-md-6
-            [:textarea.form-control {:rows "4" :id "add-story-summary"}]]]
+            [:textarea.form-control {:rows "4" :id "add-story-summary"
+                                     :on-change (fn [e] (reset! input-info (.-target.value e))
+                                                  (swap! app-db assoc-in [:add-story "summary"] @input-info))}]]]
           [:div.col-md-offset-2
-           [:button.btn.btn-lg.btn-primary "Link it up!"]]
+           [:button.btn.btn-lg.btn-primary {:on-click (fn [e]
+                                                        (post-story)
+                                                        (get-stories))} "Link it up!"]]
           ]]]
        [:div.row
         [:div.col-md-12.h1 "Today's News"]]

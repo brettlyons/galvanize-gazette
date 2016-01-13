@@ -24,3 +24,11 @@ INSERT INTO stories
     'We interviewed this zebra about salami.  It knew nothing.',
     now()
 );
+
+INSERT INTO opinions
+  (id, story, content)
+    VALUES (
+      DEFAULT,
+      (SELECT id FROM STORIES LIMIT 1),
+      "This is some kind of opinion"
+);

@@ -19,3 +19,24 @@ WHERE id = :id
 -- delete a user given the id
 DELETE FROM users
 WHERE id = :id
+
+-- name: get-stories
+-- get the table of stories from the db
+SELECT * FROM stories
+
+-- name: get-story
+-- get a single story based on id
+SELECT * FROM story
+WHERE id = :id
+
+-- name: create-story!
+-- add a story to the db
+INSERT INTO stories
+(id, title, link, imageurl, summary, dayOfCommit)
+VALUES (DEFAULT, :title, :link, :imageurl, :summary, now())
+
+-- name: create-opinion!
+-- add an opinion to the db
+INSERT INTO opinions
+(id, story, content)
+VALUES (DEFAULT, :story_id, :content)

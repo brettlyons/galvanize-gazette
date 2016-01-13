@@ -1,5 +1,6 @@
 (ns galvanize-gazette.routes.services
   (:require [ring.util.http-response :refer :all]
+            [galvanize-gazette.db.core :as db]
             [compojure.api.sweet :refer :all]
             [schema.core :as s]))
 
@@ -18,6 +19,20 @@
   (context* "/api" []
             :tags ["thingie"]
 
+            (POST* "/story" [] (fn [req]
+                                 (println (str "THE PARAMS OF THE REQUEST: " (:params req)))
+                                 :summary "Puts a story into the db"
+                                 (db/create-story! {:title (get-in req [:params :title])
+                                                    :link (get-in req [:params :link])
+                                                    :imageurl (get-in req [:params :imageurl])
+                                                    :summary (get-in req [:params :summary])})
+                                 (ok "success")))
+            
+            (GET* "/story" []
+                  :query-params []
+                  :summary "Returns a list of stories from the db"
+                  (ok (db/get-stories)))
+            
             (GET* "/plus" []
                   :return       Long
                   :query-params [x :- Long, {y :- Long 1}]
