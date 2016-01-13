@@ -8,7 +8,10 @@
             [ajax.core :refer [GET POST]])
   (:import goog.History))
 
-(def AJAX-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
+(def HEROKU-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
+(def LOCAL-ADDRESS "http://localhost:3000/api/story")
+
+(def AJAX-ADDRESS HEROKU-ADDRESS)
 
 (defn navbar []
   (fn []
@@ -139,7 +142,9 @@
         [:textarea.form-control {:rows "2" :id "opinion"
                                  :on-change (fn [e] (reset! input-info (.-target.value e)))}]
         [:p]
-        [:button.btn.btn-md.btn-primary {:on-click #(swap! app-db assoc-in [:opinions] (conj @input-info (get-in @app-db [:opinions])))}
+        [:button.btn.btn-md.btn-primary {:on-click (fn [e]
+                                                     (println (get-in @app-db [:opinions]))
+                                                     (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
          "Opine"]]]]
      [:p]
      [:div.row
