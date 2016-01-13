@@ -139,6 +139,11 @@
         [:p]
         [:button.btn.btn-md.btn-primary {:on-click #(swap! app-db assoc-in [:opinions] (conj @input-info (get-in @app-db [:opinions])))}
          "Opine"]]]]
+     [:p]
+     [:div.row
+      [:div.col-md-6
+       (for [opinion (get-in @app-db [:opinions])]
+           [:h3 opinion])]]
      ]
     )))
 
