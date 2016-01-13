@@ -31,7 +31,7 @@
     [:div.col-md-12
      "this is the story of galvanize-gazette... work in progress"]]])
 
-(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy"]}))
+(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy" "I suppose it is little comfort that I picked a sort of *hard mode*, at least it's not far from completion"]}))
 
 (defn post-story []
   (POST "http://localhost:3000/api/story" :params {:title (get-in @app-db [:add-story (str "Title")]) 
