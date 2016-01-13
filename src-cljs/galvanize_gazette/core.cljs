@@ -31,7 +31,7 @@
     [:div.col-md-12
      "this is the story of galvanize-gazette... work in progress"]]])
 
-(def app-db (r/atom {}))
+(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy"]}))
 
 (defn post-story []
   (POST "http://localhost:3000/api/story" :params {:title (get-in @app-db [:add-story (str "Title")]) 
@@ -44,10 +44,13 @@
 (defn get-stories []
   (GET "http://localhost:3000/api/story"
        {:headers {"Accept" "application/transit+json"}
-        :handler #(swap! app-db assoc-in [:stories] %)}))
+        :error-handler (fn [err] (println "GET ERROR" err))
+        :handler (fn [e] 
+                   (swap! app-db assoc-in [:stories] e))}))
 
 (defn add-story-form  [label type]
   (let [id (str "add-story-" label) type (or type "text") input-info (r/atom "")]
+    (get-stories)
     (fn []
       ;; (println app-db)
       ;; (println (get-in @app-db [:add-story "Image URL"]))
@@ -61,12 +64,19 @@
                               :on-change (fn [e] (reset! input-info (.-target.value e))
                                            (swap! app-db assoc-in [:add-story label] @input-info))}]]])))
 
+(defn story-summary [story]
+  [:div.col-md-4
+   [:a {:href (str "#/stories/" (:id story)) :on-click #(swap! app-db assoc-in [:stories-info-page] story)}
+    [:div {:style {:width "100%" :height "200px" :background-size "100%"
+                   :background-image (str "url(" (:imageurl story) ")")}}]]
+   [:div.h1 [:a {:href (str "#/stories/" (:id story))
+                 :on-click #(swap! app-db assoc-in [:stories-info-page] story)} (:title story)]]])
+
 
 (defn home-page []
-  (let [hide-form (r/atom false) input-info (r/atom "") todays-stories (doall (get-stories)
-                                                                              (get-in app-db [:stories]))]
+  (get-stories)
+  (let [hide-form (r/atom false) input-info (r/atom "") todays-stories (get-in app-db [:stories])]
     (fn []
-      (println (str todays-stories))
       [:div.container
        [:div.row
         [:a.pull-right {:on-click #(swap! hide-form not)} (str (if @hide-form "Show" "Hide"))]
@@ -93,25 +103,68 @@
        [:div.row
         [:div.col-md-12.h1 "Today's News"]]
        [:div.row
-        [:div.col-md-4]]
-       ])))
+        (for [story (get-in @app-db [:stories])]
+          ^{:key (:id story)}[story-summary story])]])))
+
+(def opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy"])
+
+(defn stories-page []
+  (println (get-in @app-db [:stories-info-page]))
+  (println "stories" (get-in @app-db [:stories-info-page :link]))
+  ;; (swap! app-db assoc-in [:story-by-id (get-in [:stories :id] @app-db)])
+  
+  ;; (println (str "PATHNAME? " js/window.location))
+  (let [id (get-in @app-db [:story-page-id]) story (get-in @app-db [:stories-info-page]) input-info (r/atom "")]
+  (fn []
+    [:div.container
+     ;;[:div.h1 (get-in @app-db [:story-page-id])]
+     [:div.row
+      [:div.col-md-12.h1 (:title story)]]
+     [:div.row
+      [:div.col-md-4 
+       [:div {:style {:width "100%" :height "200px" :background-size "100%"
+                      :background-image (str "url(" (:imageurl story) ")")}}]]
+      [:div.col-md-8.h2 (:summary story)]
+      [:p]
+      [:div.col-md-8.h2
+       [:a {:href (:link story)} "View Site"]]]
+     [:div.row
+      [:div.col-md-6.h1 "Opinions"] [:div.col-md-6.h1 "Expert Analysis"]]
+     [:div.row
+      [:div.form-group.form-group-md
+       [:div.col-md-6
+        [:label {:for "opinion" :style {:font-size "18px"}} "Whats your opinion?"]
+        [:textarea.form-control {:rows "2" :id "opinion"
+                                 :on-change (fn [e] (reset! input-info (.-target.value e)))}]
+        [:p]
+        [:button.btn.btn-md.btn-primary {:on-click #(swap! app-db assoc-in [:opinions] (conj @input-info (get-in @app-db [:opinions])))}
+         "Opine"]]]]
+     ]
+    )))
 
 (def pages
   {:home #'home-page
-   :about #'about-page})
+   :about #'about-page
+   :stories #'stories-page})
 
 (defn page []
   [(pages (session/get :page))])
 
 ;; -------------------------
 ;; Routes
-;; (secretary/set-config! :prefix "")
+
+(secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
   (session/put! :page :home))
 
 (secretary/defroute "/about" []
   (session/put! :page :about))
+
+(secretary/defroute stories-with-id "/stories/:id" {:as params}
+  (println "ROUTING HAPPEND " params)
+  (swap! app-db assoc-in [:story-page-id] (:id params))
+  (session/put! :page :stories))
 
 ;; -------------------------
 ;; History
@@ -126,14 +179,11 @@
 
 ;; -------------------------
 ;; Initialize app
-(defn fetch-docs! []
-  (GET (str js/context "/docs") {:handler #(session/put! :docs %)}))
 
 (defn mount-components []
   (r/render [#'navbar] (.getElementById js/document "navbar"))
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
-  (fetch-docs!)
   (hook-browser-navigation!)
   (mount-components))
