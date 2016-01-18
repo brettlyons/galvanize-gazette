@@ -1,4 +1,4 @@
-(ns galvanize-gazette.core
+ns galvanize-gazette.core
   (:require [reagent.core :as r :refer [atom]]
             [reagent.session :as session]
             [secretary.core :as secretary :include-macros true]
@@ -14,7 +14,6 @@
 (def AJAX-ADDRESS HEROKU-ADDRESS)
 
 (defn navbar []
-  (fn []
     [:div.row
      [:div.col-md-12 {:style {:background-image "url(img/devils-tower.jpg)"
                               :background-size "100%"
@@ -28,7 +27,7 @@
           [:div.row.h1
            [:div.col-md-12 "Galvanize Gazette"]]
           [:div.row.h3
-           [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]]))
+           [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]])
 
 (defn about-page []
   [:div.container

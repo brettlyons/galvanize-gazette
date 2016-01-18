@@ -1,0 +1,4 @@
+TODO:
+- [ ] SQL query for opinions
+- [ ] POST request w/handlers for opinion
+- [ ] reduce accross all opinions for a given story, and do word counts, omitting some specific words.
