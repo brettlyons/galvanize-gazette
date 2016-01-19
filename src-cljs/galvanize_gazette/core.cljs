@@ -1,33 +1,34 @@
 ns galvanize-gazette.core
-  (:require [reagent.core :as r :refer [atom]]
-            [reagent.session :as session]
-            [secretary.core :as secretary :include-macros true]
-            [goog.events :as events]
-            [goog.history.EventType :as HistoryEventType]
-            [markdown.core :refer [md->html]]
-            [ajax.core :refer [GET POST]])
-  (:import goog.History))
+(:require [reagent.core :as r :refer [atom]]
+          [reagent.session :as session]
+          [secretary.core :as secretary :include-macros true]
+          [goog.events :as events]
+          [goog.history.EventType :as HistoryEventType]
+          [markdown.core :refer [md->html]]
+          [ajax.core :refer [GET POST]])
+(:import goog.History))
 
 (def HEROKU-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
 (def LOCAL-ADDRESS "http://localhost:3000/api/story")
 
-(def AJAX-ADDRESS HEROKU-ADDRESS)
+;;(def AJAX-ADDRESS HEROKU-ADDRESS)
+(def AJAx-ADDRESS LOCAL-ADDRESS)
 
 (defn navbar []
-    [:div.row
-     [:div.col-md-12 {:style {:background-image "url(img/devils-tower.jpg)"
-                              :background-size "100%"
-                              :height "200px"
-                              :width "100%"}}
-      [:p]
-      [:div.container
-       [:div.row
-        [:a {:href "/" :style {:color "black"}}
-         [:div.col-md-5 {:style {:margin "25px 0 25px 0" :opacity "0.7" :border-style "solid" :border-color "black" :border-width "2px" :background-color "white"}}
-          [:div.row.h1
-           [:div.col-md-12 "Galvanize Gazette"]]
-          [:div.row.h3
-           [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]])
+  [:div.row
+   [:div.col-md-12 {:style {:background-image "url(img/devils-tower.jpg)"
+                            :background-size "100%"
+                            :height "200px"
+                            :width "100%"}}
+    [:p]
+    [:div.container
+     [:div.row
+      [:a {:href "/" :style {:color "black"}}
+       [:div.col-md-5 {:style {:margin "25px 0 25px 0" :opacity "0.7" :border-style "solid" :border-color "black" :border-width "2px" :background-color "white"}}
+        [:div.row.h1
+         [:div.col-md-12 "Galvanize Gazette"]]
+        [:div.row.h3
+         [:div.col-md-12 "All The News Thats Fit To Link"]]]]]]]])
 
 (defn about-page []
   [:div.container
@@ -39,9 +40,9 @@ ns galvanize-gazette.core
 
 (defn post-story []
   (POST AJAX-ADDRESS :params {:title (get-in @app-db [:add-story (str "Title")]) 
-                          :link (get-in @app-db [:add-story "Link"])
-                          :imageurl (get-in @app-db [:add-story "Image URL"])
-                          :summary (get-in @app-db [:add-story "summary"])}
+                              :link (get-in @app-db [:add-story "Link"])
+                              :imageurl (get-in @app-db [:add-story "Image URL"])
+                              :summary (get-in @app-db [:add-story "summary"])}
         :handler #(println "POST SUCCESFUL!::: " % @app-db)
         :error-handler #(println "POST (un?)SUCCESFUL!::: " %)))
 
@@ -119,39 +120,39 @@ ns galvanize-gazette.core
   
   ;; (println (str "PATHNAME? " js/window.location))
   (let [id (get-in @app-db [:story-page-id]) story (get-in @app-db [:stories-info-page]) input-info (r/atom "")]
-  (fn []
-    [:div.container
-     ;;[:div.h1 (get-in @app-db [:story-page-id])]
-     [:div.row
-      [:div.col-md-12.h1 (:title story)]]
-     [:div.row
-      [:div.col-md-4 
-       [:div {:style {:width "100%" :height "200px" :background-size "100%"
-                      :background-image (str "url(" (:imageurl story) ")")}}]]
-      [:div.col-md-8.h2 (:summary story)]
-      [:p]
-      [:div.col-md-8.h2
-       [:a {:href (:link story)} "View Site"]]]
-     [:div.row
-      [:div.col-md-6.h1 "Opinions"] [:div.col-md-6.h1 "Expert Analysis"]]
-     [:div.row
-      [:div.form-group.form-group-md
-       [:div.col-md-6
-        [:label {:for "opinion" :style {:font-size "18px"}} "Whats your opinion?"]
-        [:textarea.form-control {:rows "2" :id "opinion"
-                                 :on-change (fn [e] (reset! input-info (.-target.value e)))}]
+    (fn []
+      [:div.container
+       ;;[:div.h1 (get-in @app-db [:story-page-id])]
+       [:div.row
+        [:div.col-md-12.h1 (:title story)]]
+       [:div.row
+        [:div.col-md-4 
+         [:div {:style {:width "100%" :height "200px" :background-size "100%"
+                        :background-image (str "url(" (:imageurl story) ")")}}]]
+        [:div.col-md-8.h2 (:summary story)]
         [:p]
-        [:button.btn.btn-md.btn-primary {:on-click (fn [e]
-                                                     (println (get-in @app-db [:opinions]))
-                                                     (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
-         "Opine"]]]]
-     [:p]
-     [:div.row
-      [:div.col-md-6
-       (for [opinion (get-in @app-db [:opinions])]
+        [:div.col-md-8.h2
+         [:a {:href (:link story)} "View Site"]]]
+       [:div.row
+        [:div.col-md-6.h1 "Opinions"] [:div.col-md-6.h1 "Expert Analysis"]]
+       [:div.row
+        [:div.form-group.form-group-md
+         [:div.col-md-6
+          [:label {:for "opinion" :style {:font-size "18px"}} "Whats your opinion?"]
+          [:textarea.form-control {:rows "2" :id "opinion"
+                                   :on-change (fn [e] (reset! input-info (.-target.value e)))}]
+          [:p]
+          [:button.btn.btn-md.btn-primary {:on-click (fn [e]
+                                                       (println (get-in @app-db [:opinions]))
+                                                       (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
+           "Opine"]]]]
+       [:p]
+       [:div.row
+        [:div.col-md-6
+         (for [opinion (get-in @app-db [:opinions])]
            [:h3 opinion])]]
-     ]
-    )))
+       ]
+      )))
 
 (def pages
   {:home #'home-page
@@ -182,11 +183,11 @@ ns galvanize-gazette.core
 ;; must be called after routes have been defined
 (defn hook-browser-navigation! []
   (doto (History.)
-        (events/listen
-          HistoryEventType/NAVIGATE
-          (fn [event]
-              (secretary/dispatch! (.-token event))))
-        (.setEnabled true)))
+    (events/listen
+     HistoryEventType/NAVIGATE
+     (fn [event]
+       (secretary/dispatch! (.-token event))))
+    (.setEnabled true)))
 
 ;; -------------------------
 ;; Initialize app
