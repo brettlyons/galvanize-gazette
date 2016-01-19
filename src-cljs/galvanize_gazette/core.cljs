@@ -1,18 +1,16 @@
-ns galvanize-gazette.core
+(ns galvanize-gazette.core
 (:require [reagent.core :as r :refer [atom]]
           [reagent.session :as session]
           [secretary.core :as secretary :include-macros true]
           [goog.events :as events]
+          [clojure.string :as string]
           [goog.history.EventType :as HistoryEventType]
           [markdown.core :refer [md->html]]
           [ajax.core :refer [GET POST]])
 (:import goog.History))
 
-(def HEROKU-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
-(def LOCAL-ADDRESS "http://localhost:3000/api/story")
-
-;;(def AJAX-ADDRESS HEROKU-ADDRESS)
-(def AJAx-ADDRESS LOCAL-ADDRESS)
+;; (def AJAX-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
+(def AJAX-ADDRESS "http://localhost:3000/api/story")
 
 (defn navbar []
   [:div.row
@@ -36,7 +34,7 @@ ns galvanize-gazette.core
     [:div.col-md-12
      "this is the story of galvanize-gazette... work in progress"]]])
 
-(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy" "I suppose it is little comfort that I picked a sort of *hard mode*, at least it's not far from completion"]}))
+(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a piece of junk, not very happy" "I suppose it is little comfort that I picked a sort of *hard mode*, at least it's not far from completion"]}))
 
 (defn post-story []
   (POST AJAX-ADDRESS :params {:title (get-in @app-db [:add-story (str "Title")]) 
@@ -134,10 +132,10 @@ ns galvanize-gazette.core
         [:div.col-md-8.h2
          [:a {:href (:link story)} "View Site"]]]
        [:div.row
-        [:div.col-md-6.h1 "Opinions"] [:div.col-md-6.h1 "Expert Analysis"]]
+        [:div.col-md-7.h1 "Opinions"] [:div.col-md-5.h1 "Expert Analysis"]]
        [:div.row
-        [:div.form-group.form-group-md
-         [:div.col-md-6
+        [:div.col-md-6
+         [:div.form-group.form-group-md
           [:label {:for "opinion" :style {:font-size "18px"}} "Whats your opinion?"]
           [:textarea.form-control {:rows "2" :id "opinion"
                                    :on-change (fn [e] (reset! input-info (.-target.value e)))}]
@@ -145,9 +143,22 @@ ns galvanize-gazette.core
           [:button.btn.btn-md.btn-primary {:on-click (fn [e]
                                                        (println (get-in @app-db [:opinions]))
                                                        (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
-           "Opine"]]]]
-       [:p]
-       [:div.row
+           "Opine"]]]
+        [:div.col-md-offset-4
+         [:div.col-md-7
+          [:div.col-md-offset-4
+           [:div.col-md-8.h2 [:ul [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]
+                              [:li "word (n)"]]]]]]
+        [:p]
         [:div.col-md-6
          (for [opinion (get-in @app-db [:opinions])]
            [:h3 opinion])]]
