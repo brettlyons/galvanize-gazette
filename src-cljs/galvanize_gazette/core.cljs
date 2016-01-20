@@ -12,6 +12,8 @@
 ;; (def AJAX-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
 (def AJAX-ADDRESS "http://localhost:3000/api/story")
 
+;; meta-redirect for causing a redirect to a different page 
+
 (defn navbar []
   [:div.row
    [:div.col-md-12 {:style {:background-image "url(img/devils-tower.jpg)"
@@ -109,11 +111,20 @@
         (for [story (get-in @app-db [:stories])]
           ^{:key (:id story)}[story-summary story])]])))
 
-(def opinions ["I loved it.  Very happy." "What a pieceof junk, not very happy"])
+(def opinions ["I loved it.  Very happy." "What a piece of junk, not very happy"])
+
+(defn word-frequencies
+  [wordslist]
+  (frequencies
+   (string/split
+    (string/join " " wordslist) #"\W")))
+
+;; (string/lower-case wordslist)
 
 (defn stories-page []
   (println (get-in @app-db [:stories-info-page]))
   (println "stories" (get-in @app-db [:stories-info-page :link]))
+  (println (word-frequencies opinions))
   ;; (swap! app-db assoc-in [:story-by-id (get-in [:stories :id] @app-db)])
   
   ;; (println (str "PATHNAME? " js/window.location))
@@ -147,17 +158,10 @@
         [:div.col-md-offset-4
          [:div.col-md-7
           [:div.col-md-offset-4
-           [:div.col-md-8.h2 [:ul [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]
-                              [:li "word (n)"]]]]]]
+           ;; (frequencies (clojure.string/split (clojure.string/join " " test-list) #" ")) --> this will return {word n word2 n2 . . . wordnk nk}
+           [:div.col-md-8.h2 [:ul
+                              (for [word (word-frequencies opinions)]
+                                [:li (str (first word) "(" (second word) ")")])]]]]]
         [:p]
         [:div.col-md-6
          (for [opinion (get-in @app-db [:opinions])]
