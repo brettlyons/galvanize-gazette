@@ -39,7 +39,7 @@
                   :summary "Returns a list of stories from the db"
                   (ok (db/get-stories)))
 
-            (GET* "/opinions/:id" []
+            (GET* "/opinions/:id" [id]
                   :query-params []
                   :summary "Returns the opinions associated with a story from the db"
                   (ok (db/get-opinions {:story_id id})))
