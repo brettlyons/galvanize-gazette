@@ -36,7 +36,7 @@
     [:div.col-md-12
      "this is the story of galvanize-gazette... work in progress"]]])
 
-(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a piece of junk, not very happy" "I suppose it is little comfort that I picked a sort of *hard mode*, at least it's not far from completion"]}))
+(def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a piece of junk, not very happy" "Sweet site, excellent fish."]}))
 
 (defn post-story []
   (POST AJAX-ADDRESS :params {:title (get-in @app-db [:add-story (str "Title")]) 
@@ -133,7 +133,7 @@
 (defn stories-page []
   ;; (println (get-in @app-db [:stories-info-page]))
   ;; (println "stories" (get-in @app-db [:stories-info-page :link]))
-  (println (word-frequencies opinions))
+  (println (word-frequencies (:opinions app-db)))
   ;; (swap! app-db assoc-in [:story-by-id (get-in [:stories :id] @app-db)])
   
   ;; (println (str "PATHNAME? " js/window.location))
@@ -152,8 +152,8 @@
         [:div.col-md-8.h2
          [:a {:href (:link story)} "View Site"]]]
        [:div.row
-        [:div.col-md-7.h1 "Opinions"] [:div.col-md-5.h1 "Expert Analysis"]]
-       [:div.row
+        [:div.col-md-7.h1 "Opinions"]
+        [:div.col-md-5.h1 "Expert Analysis"]
         [:div.col-md-6
          [:div.form-group.form-group-md
           [:label {:for "opinion" :style {:font-size "18px"}} "Whats your opinion?"]
@@ -163,18 +163,19 @@
           [:button.btn.btn-md.btn-primary {:on-click (fn [e]
                                                        (println (get-in @app-db [:opinions]))
                                                        (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
-           "Opine"]]]
+           "Opine"]]
+         (for [opinion (get-in @app-db [:opinions])]
+           ^{:key (first opinion)} [:div
+                                    [:h3 opinion]
+                                    [:hr {:size "10" :noshade "true"}]])]
         [:div.col-md-offset-4
          [:div.col-md-7
           [:div.col-md-offset-4
            ;; (frequencies (clojure.string/split (clojure.string/join " " test-list) #" ")) --> this will return {word n word2 n2 . . . wordnk nk}
            [:div.col-md-8.h2 [:ul
-                              (for [word (word-frequencies opinions)]
-                                [:li (str (first word) "(" (second word) ")")])]]]]]
-        [:p]
-        [:div.col-md-6
-         (for [opinion (get-in @app-db [:opinions])]
-           [:h3 opinion])]]
+                              (for [word (word-frequencies (:opinions @app-db))]
+                                ^{:key (first word)} [:li (str (first word) "(" (second word) ")")])]]]]]
+        ]
        ]
       )))
 
