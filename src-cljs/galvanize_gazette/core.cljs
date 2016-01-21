@@ -9,8 +9,8 @@
           [ajax.core :refer [GET POST]])
 (:import goog.History))
 
-;; (def AJAX-ADDRESS "http://limitless-refuge-7694.herokuapp.com/api/story")
-(def AJAX-ADDRESS "http://localhost:3000/api/story")
+(def AJAX-ADDRESS "http://galvanize-gazette-demo.herokuapp.com/api/story")
+;;(def AJAX-ADDRESS "http://localhost:3000/api/story")
 
 ;; meta-redirect for causing a redirect to a different page 
 

@@ -20,18 +20,30 @@
             :tags ["thingie"]
 
             (POST* "/story" [] (fn [req]
-                                 (println (str "THE PARAMS OF THE REQUEST: " (:params req)))
+                                 (println (str "THE PARAMS OF STORY POST REQUEST: " (:params req)))
                                  :summary "Puts a story into the db"
                                  (db/create-story! {:title (get-in req [:params :title])
                                                     :link (get-in req [:params :link])
                                                     :imageurl (get-in req [:params :imageurl])
                                                     :summary (get-in req [:params :summary])})
-                                 (ok "success")))
+                                 (ok)))
+            (POST* "/opinions" [] (fn [req]
+                                    (println (str "THE PARAMS OF OPINION POST REQUEST: " (:params req)))
+                                    :summary "Puts an opinion into the db"
+                                    (db/create-opinion! {:story_id (get-in req [:params :story_id])
+                                                       :content (get-in req [:params :content])})
+                                    (ok)))
             
             (GET* "/story" []
                   :query-params []
                   :summary "Returns a list of stories from the db"
                   (ok (db/get-stories)))
+
+            (GET* "/opinions/:id" []
+                  :query-params []
+                  :summary "Returns the opinions associated with a story from the db"
+                  (ok (db/get-opinions {:story_id id})))
+
             
             (GET* "/plus" []
                   :return       Long
