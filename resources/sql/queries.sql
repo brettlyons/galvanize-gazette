@@ -41,7 +41,7 @@ INSERT INTO opinions
 (id, story, content)
 VALUES (DEFAULT, :story_id, :content)
 
--- name: get-opinion
+-- name: get-opinions
 -- get opinions from the db
 SELECT * FROM opinions
 WHERE story = :story_id
