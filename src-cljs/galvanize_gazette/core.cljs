@@ -113,17 +113,26 @@
 
 (def opinions ["I loved it.  Very happy." "What a piece of junk, not very happy"])
 
+(defn custom-words-filter?
+  [word]
+  (let [wordlist ["the" "a" "i" "it" "of" "not" ""]]
+    (some (partial = word) wordlist)))
+
 (defn word-frequencies
   [wordslist]
-  (frequencies
-   (string/split
-    (string/join " " wordslist) #"\W")))
+  (filter #(not (custom-words-filter? (first %)))
+          (frequencies
+           (string/split
+            (.toLowerCase 
+             (string/join " " wordslist)) #"\W"))))
 
+
+;; the a i it of not
 ;; (string/lower-case wordslist)
 
 (defn stories-page []
-  (println (get-in @app-db [:stories-info-page]))
-  (println "stories" (get-in @app-db [:stories-info-page :link]))
+  ;; (println (get-in @app-db [:stories-info-page]))
+  ;; (println "stories" (get-in @app-db [:stories-info-page :link]))
   (println (word-frequencies opinions))
   ;; (swap! app-db assoc-in [:story-by-id (get-in [:stories :id] @app-db)])
   
