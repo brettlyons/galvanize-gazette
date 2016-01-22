@@ -9,8 +9,8 @@
           [ajax.core :refer [GET POST]])
 (:import goog.History))
 
-(def AJAX-ADDRESS "http://galvanize-gazette-demo.herokuapp.com/api/story")
-;;(def AJAX-ADDRESS "http://localhost:3000/api/story")
+;; (def AJAX-ADDRESS "http://galvanize-gazette-demo.herokuapp.com/api")
+(def AJAX-ADDRESS "http://localhost:3000/api")
 
 ;; meta-redirect for causing a redirect to a different page 
 
@@ -39,19 +39,35 @@
 (def app-db (r/atom {:opinions ["I loved it.  Very happy." "What a piece of junk, not very happy" "Sweet site, excellent fish."]}))
 
 (defn post-story []
-  (POST AJAX-ADDRESS :params {:title (get-in @app-db [:add-story (str "Title")]) 
-                              :link (get-in @app-db [:add-story "Link"])
-                              :imageurl (get-in @app-db [:add-story "Image URL"])
-                              :summary (get-in @app-db [:add-story "summary"])}
+  (POST (str AJAX-ADDRESS "/story") :params {:title (get-in @app-db [:add-story (str "Title")]) 
+                                             :link (get-in @app-db [:add-story "Link"])
+                                             :imageurl (get-in @app-db [:add-story "Image URL"])
+                                             :summary (get-in @app-db [:add-story "summary"])}
         :handler #(println "POST SUCCESFUL!::: " % @app-db)
         :error-handler #(println "POST (un?)SUCCESFUL!::: " %)))
 
+(defn post-opinion [id content]
+  (println (str AJAX-ADDRESS "/opinions" " id " id " content " content))
+  (POST (str AJAX-ADDRESS "/opinions") :params {:story_id id
+                                                :content content}
+        :handler #(println "opinion post succesful: " %)
+        :error-handler #(println "POST (un?)SUCCESFUL!::: " %)))
+
+
 (defn get-stories []
-  (GET AJAX-ADDRESS
+  (GET (str AJAX-ADDRESS "/stories")
        {:headers {"Accept" "application/transit+json"}
         :error-handler (fn [err] (println "GET ERROR" err))
         :handler (fn [e] 
                    (swap! app-db assoc-in [:stories] e))}))
+
+(defn get-opinions [id]
+  (GET (str AJAX-ADDRESS "/opinions/" id)
+       {:headers {"Accept" "application/transit+json"}
+        :error-handler (fn [err] (println "GET ERROR" err))
+        :handler (fn [e] 
+                   (swap! app-db assoc-in [:opinions] e))}))
+
 
 (defn add-story-form  [label type]
   (let [id (str "add-story-" label) type (or type "text") input-info (r/atom "")]
@@ -126,19 +142,19 @@
             (.toLowerCase 
              (string/join " " wordslist)) #"\W"))))
 
-
-;; the a i it of not
-;; (string/lower-case wordslist)
-
 (defn stories-page []
+  (get-stories)
+  (println "stories" (get-in @app-db [:stories]))
+  (println "lah" (into {} (map #(hash-map (:id %) %) (:stories @app-db))))
   ;; (println (get-in @app-db [:stories-info-page]))
   ;; (println "stories" (get-in @app-db [:stories-info-page :link]))
-  (println (word-frequencies (:opinions app-db)))
+  ;; (println (word-frequencies (:opinions app-db)))
   ;; (swap! app-db assoc-in [:story-by-id (get-in [:stories :id] @app-db)])
   
   ;; (println (str "PATHNAME? " js/window.location))
-  (let [id (get-in @app-db [:story-page-id]) story (get-in @app-db [:stories-info-page]) input-info (r/atom "")]
-    (fn []
+  (fn []
+    (get-stories)
+    (let [id (get-in @app-db [:story-page-id]) story (get-in @app-db [:stories-info-page]) input-info (r/atom "")]
       [:div.container
        ;;[:div.h1 (get-in @app-db [:story-page-id])]
        [:div.row
@@ -162,6 +178,8 @@
           [:p]
           [:button.btn.btn-md.btn-primary {:on-click (fn [e]
                                                        (println (get-in @app-db [:opinions]))
+                                                       (println id input-info)
+                                                       (post-opinion id @input-info)
                                                        (swap! app-db assoc-in [:opinions] (cons @input-info (get-in @app-db [:opinions]))))}
            "Opine"]]
          (for [opinion (get-in @app-db [:opinions])]
@@ -200,7 +218,9 @@
 
 (secretary/defroute stories-with-id "/stories/:id" {:as params}
   (println "ROUTING HAPPEND " params)
+  (println (:id params))
   (swap! app-db assoc-in [:story-page-id] (:id params))
+  (println (get-in @app-db [:story-page-id]))
   (session/put! :page :stories))
 
 ;; -------------------------

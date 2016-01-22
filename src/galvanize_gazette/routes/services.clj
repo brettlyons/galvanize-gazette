@@ -34,10 +34,11 @@
                                                        :content (get-in req [:params :content])})
                                     (ok)))
             
-            (GET* "/story" []
+            (GET* "/stories" []
                   :query-params []
                   :summary "Returns a list of stories from the db"
                   (ok (db/get-stories)))
+            
 
             (GET* "/opinions/:id" [id]
                   :query-params []
