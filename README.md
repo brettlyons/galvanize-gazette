@@ -6,6 +6,8 @@ It's built using mostly ClojureScript, with some custom SQL queries bound to Clo
 
 It uses Reagant which wraps React, along with Clojure's immutable data structures.
 
+A demo example exists at http://galvanize-gazette-demo.herokuapp.com
+
 ## Prerequisites
 
 You will need [Leiningen][1] 2.0 or above installed.
